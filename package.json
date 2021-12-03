@@ -1,0 +1,39 @@
+{
+  "name": "vue3-crontable",
+  "version": "0.1.0",
+  "description": "Simple timers/jobs for vue3 plugin and components",
+  "main": "dist/index.js",
+  "scripts": {
+    "deploy": "npm publish",
+    "ts-dev": "tsc -w",
+    "ts-build": "tsc",
+    "wp-build": "npx webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polinwei/vue3-crontable.git"
+  },
+  "keywords": [
+    "vue3",
+    "cron"
+  ],
+  "author": "Polin WEI",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/polinwei/vue3-crontable/issues"
+  },
+  "homepage": "https://github.com/polinwei/vue3-crontable#readme",
+  "dependencies": {
+    "typescript": "^4.5.2",
+    "vue": "^3.2.23"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.11",
+    "@vue/compiler-sfc": "^3.2.23",
+    "ts-loader": "^9.2.6",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  }
+}
