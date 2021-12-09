@@ -1,8 +1,8 @@
 {
   "name": "vue3-crontable",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "Simple timers/jobs for vue3 plugin and components",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "deploy": "npm publish",
     "ts-dev": "tsc -w",

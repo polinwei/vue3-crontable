@@ -4,7 +4,7 @@ const config = {
 	input: './output/src/index.js',
 	output: [
 		{
-			dir: "dist"
+			dir: "dist",
 		},
 	],
   plugins: [terser()],    
