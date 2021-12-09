@@ -6,6 +6,7 @@ sassdoc
 
 # dependencies
 /node_modules
+/output
 package-lock.json
 yarn.lock
 

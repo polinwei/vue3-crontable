@@ -1,5 +1,6 @@
 # Install log
 
+## 開發需要的套件
 ## Vue3
 ```
 npm install -D vue@next 
@@ -17,15 +18,19 @@ npm i -D  @babel/core @babel/preset-env @babel/register
 ```
 npm install --save-dev typescript
 ```
-## rollup & rimraf & deepmerge
+## 發佈需要的套件
+## rollup & rimraf 
 ```
 npm install --save-dev rollup rimraf 
 ```
 Additional tools are needed:
 - rimraf: which is the UNIX command rm -rf for Node.js
+## Rollup plugin to minify generated es bundle. Uses terser under the hood.
+```
+npm i rollup-plugin-terser --save-dev
+```
 
-
-## 待確認安裝
+## 待確認安裝套件
 
 npm install --save-dev @rollup/plugin-typescript 
 npm install --save-dev @rollup/plugin-node-resolve 
@@ -36,7 +41,7 @@ npm install --save-dev @open-wc/building-rollup deepmerge
 - deepmerge: a tool to merge enumerable properties or more objects deeply.
 
 npm i -D ts-loader babel-loader
-
+npm i -D rollup-plugin-vue
 
 
 
