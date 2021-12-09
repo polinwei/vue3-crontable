@@ -1,41 +1,53 @@
-import { getCurrentInstance } from "vue"
-var jobsTable = []
-var jobsRunning = []
+import { App, getCurrentInstance } from "vue"
 
-const mapOrSingle = function(obj, fn){
+// 定義 cron 的型態
+interface cronProps {
+  timer: NodeJS.Timer,
+  method: string,
+  autoStart: boolean,
+  timerRunning: boolean,
+  time: number,
+  lastInvocation: number
+}
+// 定義陣列 定時工作項目:jobsTable & 在執行的工作項目:jobsRunning 並給初始值
+let jobsTable : cronProps[] =[]
+let jobsRunning : cronProps[] =[]
+
+const mapOrSingle = function( obj: Array<cronProps>, fn: Function) {
   if(obj.constructor !== Array){
     return fn(obj)
   }
   else{
-    return obj.map(fn)
+    return obj.map(fn())
   }
 }
-
-const recCron = (cron)=>{
-  const jobIndex = jobsTable.findIndex((i) => i.method === cron.method )
-  // 若jobsTable 有記錄, 則不再記錄
+// 記錄定時工作的項目
+const recCron = (cron: cronProps)=>{
+  let jobIndex: number = -1
+  if (jobsTable) {
+    jobIndex = jobsTable.findIndex((i) => i.method === cron.method )
+  }
+   
+  // 若jobsTable 沒有記錄, 則記錄
   if (jobIndex === -1){
     jobsTable.push({...cron})
   }
 }
 
-const createTimer = function(cron){
-  this._cron = this._cron || {}
-  const method = cron.method
+// 建立定時器
+const createTimer = function(this: any, cron: cronProps){
+  const method = cron.method  
+
   // 記錄 cron
   recCron(cron)
-  if(this._cron[method] && this._cron[method].timerRunning) return
+  if(cron.method && cron.timerRunning) return
 
-  if(cron.autoStart === false){
-    this._cron[method] = { timerRunning: false }
-  } else {
-
+  if(cron.autoStart !== false) {
     let locatedCronMethod = false
     // 找尋當前的模組是否有要執行的方法(method)
     if (this.$options.methods[method] ) {
-      locatedCronMethod = true
-
-      this._cron[method] = {
+      locatedCronMethod = true      
+      const job = {
         timer: setInterval(() => {
           this.$options.methods[method].call(this)
         }, cron.time),
@@ -43,9 +55,10 @@ const createTimer = function(cron){
         timerRunning: true,
         time: cron.time,
         lastInvocation: + new Date()
-      }
+      } as cronProps
+
       // 放入執行工作緒的陣列裡
-      jobsRunning.push({...this._cron[method]})
+      jobsRunning.push({...job})
     }
     // 當前的component 找不到要執行的方法(method)時拋出錯誤, 不讓程式往下執行
     if (!locatedCronMethod){
@@ -55,14 +68,17 @@ const createTimer = function(cron){
 }
 
 export default {
-  install: (app, options) => {
+  install: (app:App, options: {cron: Array<cronProps>} ) => {
     const cronService = {
-      add: (cron) => {
-        // 記錄 cron
-        recCron(cron)
-        if(cron.autoStart !== false) {
-          cronService.start(cron.method)
-        }
+      add: (crons:Array<cronProps>) => {
+        console.log(crons)
+        crons.forEach(cron => {
+          // 記錄 cron
+          recCron(cron)
+          if(cron.autoStart !== false) {
+            cronService.start(cron.method)
+          }
+        })        
       },
       jobsList: () => {
         return jobsTable.map(job=>job)
@@ -70,11 +86,12 @@ export default {
       jobsRuning: () => {
         return jobsRunning.map(job=>job)
       },
-      restart: method => {
+      restart: (method: string) => {
         cronService.stop(method)
         cronService.start(method)
       },
-      start: method => {
+      // 建立可以呼叫的定時器
+      start: (method: string) => {
         // 若記錄執行中, 則不再啟動
         const runningIndex = jobsRunning.findIndex((i) => i.method === method )
         if (runningIndex != -1){
@@ -82,7 +99,8 @@ export default {
         }
         const jobIndex = jobsTable.findIndex((i) => i.method === method )
         // 取得當前的模組所有的方法(method)
-        const { ctx } = getCurrentInstance()
+        const instance:any = getCurrentInstance()
+        const ctx = instance.ctx
         let locatedCronMethod = false
         if ( ctx[method] && jobIndex != -1){
           locatedCronMethod = true
@@ -95,7 +113,7 @@ export default {
             timerRunning: true,
             time: jobsTable[jobIndex].time,
             lastInvocation: + new Date()
-          }
+          } as cronProps
           // 放入執行工作緒的陣列裡
           jobsRunning.push({...cronJob})
 
@@ -104,7 +122,7 @@ export default {
           throw new Error(`Cron method '${method}' does not exist and cannot be started.`)
         }
       },
-      stop: method => {
+      stop: (method: string) => {
         const cronIndex = jobsRunning.findIndex((i) => i.method === method )
         let locatedCronMethod = false
 
