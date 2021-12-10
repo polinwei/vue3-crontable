@@ -13,72 +13,41 @@ interface cronProps {
 let jobsTable : cronProps[] =[]
 let jobsRunning : cronProps[] =[]
 
-const mapOrSingle = function( obj: Array<cronProps>, fn: Function) {
-  if(obj.constructor !== Array){
-    return fn(obj)
-  }
-  else{
-    return obj.map(fn())
-  }
-}
-// 記錄定時工作的項目
-const recCron = (cron: cronProps)=>{
-  let jobIndex: number = -1
-  if (jobsTable) {
-    jobIndex = jobsTable.findIndex((i) => i.method === cron.method )
-  }
-   
-  // 若jobsTable 沒有記錄, 則記錄
-  if (jobIndex === -1){
-    jobsTable.push({...cron})
-  }
-}
-
-// 建立定時器
-const createTimer = function(this: any, cron: cronProps){
-  const method = cron.method  
-
-  // 記錄 cron
-  recCron(cron)
-  if(cron.method && cron.timerRunning) return
-
-  if(cron.autoStart !== false) {
-    let locatedCronMethod = false
-    // 找尋當前的模組是否有要執行的方法(method)
-    if (this.$options.methods[method] ) {
-      locatedCronMethod = true      
-      const job = {
-        timer: setInterval(() => {
-          this.$options.methods[method].call(this)
-        }, cron.time),
-        method: method,
-        timerRunning: true,
-        time: cron.time,
-        lastInvocation: + new Date()
-      } as cronProps
-
-      // 放入執行工作緒的陣列裡
-      jobsRunning.push({...job})
-    }
-    // 當前的component 找不到要執行的方法(method)時拋出錯誤, 不讓程式往下執行
-    if (!locatedCronMethod){
-      throw new Error(`Cron method '${method}' does not exist.`)
-    }
-  }
-}
-
 export default {
-  install: (app:App, options: {cron: Array<cronProps>} ) => {
+  install: (app:App, options:  {cron: cronProps} | {cron: Array<cronProps>}) => {
+    
+    // 記錄定時工作的項目
+    const recCron = (cron: cronProps)=>{
+      let jobIndex: number = -1
+      if (jobsTable) {
+        jobIndex = jobsTable.findIndex((i) => i.method === cron.method )
+      }
+      
+      // 若jobsTable 沒有記錄, 則記錄
+      if (jobIndex === -1){
+        jobsTable.push({...cron})
+      }
+    }
+    
     const cronService = {
-      add: (crons:Array<cronProps>) => {
-        console.log(crons)
-        crons.forEach(cron => {
+      add: (crons: cronProps | Array<cronProps> ) => {        
+        if (Array.isArray(crons)) {
+          crons.forEach(cron => {
+            // 記錄 cron
+            recCron(cron)
+            if(cron.autoStart !== false) {
+              cronService.start(cron.method)
+            }
+          })
+        } else {
           // 記錄 cron
-          recCron(cron)
-          if(cron.autoStart !== false) {
-            cronService.start(cron.method)
+          recCron(crons)
+          if(crons.autoStart !== false) {
+            cronService.start(crons.method)
           }
-        })        
+        }
+        console.log(crons)
+                
       },
       jobsList: () => {
         return jobsTable.map(job=>job)
@@ -107,7 +76,7 @@ export default {
 
           const cronJob = {
             timer: setInterval(() => {
-              ctx[method].call(this)
+              ctx[method].call()
             }, jobsTable[jobIndex].time),
             method: method,
             timerRunning: true,
@@ -148,7 +117,8 @@ export default {
       mounted() {
         // 取得有設定 cron:{} 的 component
         if (this.$options.cron !== undefined){
-          mapOrSingle(this.$options.cron, createTimer.bind(this))
+          //mapOrSingle(this.$options.cron, createTimer.bind(this))
+          cronService.add(this.$options.cron)
         }
       }
     })

@@ -30,10 +30,12 @@ Additional tools are needed:
 npm i rollup-plugin-terser --save-dev
 ```
 
+npm install --save-dev @rollup/plugin-node-resolve 
+
 ## 待確認安裝套件
 
 npm install --save-dev @rollup/plugin-typescript 
-npm install --save-dev @rollup/plugin-node-resolve 
+
 npm install --save-dev @rollup/plugin-babel 
 
 npm install --save-dev @open-wc/building-rollup deepmerge

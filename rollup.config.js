@@ -7,7 +7,8 @@ const config = {
 			dir: "dist",
 		},
 	],
-  plugins: [terser()],    
+  plugins: [terser()],
+	external: ['vue']     
 };
 
 export default config;
