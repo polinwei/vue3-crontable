@@ -29,8 +29,11 @@ Additional tools are needed:
 ```
 npm i rollup-plugin-terser --save-dev
 ```
-
+# 套件使用 terser 時需要的 external 註釋相依套件
+```
 npm install --save-dev @rollup/plugin-node-resolve 
+npm i -D rollup-plugin-vue
+```
 
 ## 待確認安裝套件
 
@@ -43,7 +46,7 @@ npm install --save-dev @open-wc/building-rollup deepmerge
 - deepmerge: a tool to merge enumerable properties or more objects deeply.
 
 npm i -D ts-loader babel-loader
-npm i -D rollup-plugin-vue
+
 
 
 
